@@ -1,5 +1,5 @@
 /* ============================================================
-   OPV-9 // ORBITAL WEAPONS PLATFORM // CLIENT FCS
+   HMSS // ORBITAL WEAPONS PLATFORM // CLIENT FCS
    All telemetry is simulated for demonstration.
    ============================================================ */
 
@@ -219,9 +219,9 @@
   };
 
   // seed log
-  log('INFO', 'OPV-9 fire-control bus online // v6.2.41');
+  log('INFO', 'HMSS fire-control bus online // v6.2.41');
   log('INFO', 'GR-corrected solver loaded — Kerr metric, a=0.998');
-  log('INFO', 'Operator CMDR. R. VOSS authenticated // CLR-Ω');
+  log('INFO', 'Operator HIH V. ASTRAIA authenticated // CLR-Ω');
   log('WARN', 'Weapons platform armed — DEFCON-2 in effect');
 
   // --------------------------------------------------------
@@ -951,7 +951,7 @@
     { text: 'Verifying physics package safety interlocks',               tag: 'OK',   ms: 360 },
     { text: 'Running Kretschmann invariant self-test',                   tag: 'OK',   ms: 285 },
     { text: 'Establishing 256-qubit QKD uplink to ground station',       tag: 'OK',   ms: 465 },
-    { text: 'Authenticating operator CMDR. R. VOSS // CLR-Ω',           tag: 'OK',   ms: 300 },
+    { text: 'Authenticating operator HIH V. ASTRAIA // CLR-Ω',          tag: 'OK',   ms: 300 },
     { text: 'Loading geodesic fire-control integrator (6th-order RK)',   tag: 'OK',   ms: 265 },
     { text: 'Initializing Minkowski threat-detection array',             tag: 'OK',   ms: 330 },
     { text: 'Chronology protection diagnostic — CTC scan',               tag: 'OK',   ms: 390 },
