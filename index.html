@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPV-9 // RKV PLATFORM // COMMAND INTERFACE</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="crt-overlay"></div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen">
+    <div class="login-inner">
+      <div class="boot-header">
+        <img class="boot-emblem" src="logo.png" alt="Imperial Space Force Emblem">
+        <div class="boot-title">IMPERIAL SPACE FORCE</div>
+        <div class="boot-subtitle">TACTICAL COMMAND INTERFACE // OPV-9 "HER ANNUNCIATOR" // FIRE CONTROL SYSTEM v6.2.41</div>
+        <div class="boot-divider"></div>
+      </div>
+      <div class="login-form">
+        <div class="login-field-row">
+          <label class="login-label">OPERATOR ID</label>
+          <input class="login-input" type="text" value="CMDR.R.VOSS // CLR-Ω" readonly tabindex="-1">
+        </div>
+        <div class="login-field-row">
+          <label class="login-label">ACCESS CODE</label>
+          <input class="login-input" type="password" value="████████████" readonly tabindex="-1">
+        </div>
+        <button class="login-btn" onclick="loginSubmit()">AUTHENTICATE &amp; ENTER</button>
+      </div>
+      <div class="login-anthem">
+        <p>From the high and sacrèd morning star<br>
+        To the silent deeps where no suns are<br>
+        O Empress, thou alone dost hear<br>
+        The turning of each celestial sphere</p>
+        <p>We are the chord beneath thy hand<br>
+        We are the chord,<br>
+        O Star-Hearer, we are the chord beneath thy hand.</p>
+        <p>Ten thousand daughters bear thy name<br>
+        Each princess thy belovèd flame<br>
+        A note set down upon thy stave<br>
+        A song that none beside thee gave</p>
+        <p>We are the chord beneath thy hand,<br>
+        We are the chord,<br>
+        O Star-Hearèr, we are the chord beneath thy hand.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOT SCREEN -->
+  <div id="boot-screen">
+    <div class="boot-inner">
+      <div class="boot-header">
+        <img class="boot-emblem" src="logo.png" alt="Imperial Space Force Emblem">
+        <div class="boot-title">IMPERIAL SPACE FORCE</div>
+        <div class="boot-subtitle">TACTICAL COMMAND INTERFACE // OPV-9 "HER ANNUNCIATOR" // FIRE CONTROL SYSTEM v6.2.41</div>
+        <div class="boot-divider"></div>
+      </div>
+      <ul class="boot-lines" id="boot-lines"></ul>
+      <div class="boot-bar-wrap" id="boot-bar-wrap" style="display:none">
+        <div class="boot-bar" id="boot-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <header class="hud-header">
+    <div class="header-left">
+      <span class="brand">⬢ IMPERIAL SPACE FORCE // HMSS "HER ANNUNCIATOR"</span>
+    </div>
+    <div class="header-center">
+      <span class="status-pill armed" id="readiness">DEFCON-2 // WEAPONS HOT</span>
+    </div>
+    <div class="header-right">
+      <span class="label">MISSION CLOCK T+</span>
+      <span class="mono big" id="mission-clock">000:00:00:00</span>
+    </div>
+  </header>
+
+  <main class="grid">
+
+    <!-- GEODETIC TELEMETRY -->
+    <section class="panel" id="panel-geodetic">
+      <header class="panel-header">
+        <span class="bullet"></span>
+        <h2>GEODETIC TELEMETRY</h2>
+        <span class="panel-id">PNL-001 / WGS-84</span>
+      </header>
+      <div class="panel-body">
+        <div class="kv-grid">
+          <div class="kv"><span class="k">LATITUDE φ</span><span class="v" id="lat">+00.000000°</span></div>
+          <div class="kv"><span class="k">LONGITUDE λ</span><span class="v" id="lon">+000.000000°</span></div>
+          <div class="kv"><span class="k">ALTITUDE h</span><span class="v" id="alt">408.27 km</span></div>
+          <div class="kv"><span class="k">VELOCITY ‖v‖</span><span class="v" id="vel">7.660 km/s</span></div>
+          <div class="kv"><span class="k">INCLINATION i</span><span class="v">51.6394°</span></div>
+          <div class="kv"><span class="k">RAAN Ω</span><span class="v" id="raan">142.778°</span></div>
+          <div class="kv"><span class="k">ARG.PERIGEE ω</span><span class="v" id="argp">87.412°</span></div>
+          <div class="kv"><span class="k">TRUE ANOMALY ν</span><span class="v" id="nu">000.000°</span></div>
+        </div>
+        <div class="subline">
+          <span>FRAME-DRAGGING ω<sub>LT</sub>:</span>
+          <span class="mono v" id="lense-thirring">3.142e-14 rad·s⁻¹</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- MINKOWSKI RADAR / INSTALLATION VIEW -->
+    <section class="panel wide tall" id="panel-radar">
+      <header class="panel-header">
+        <span class="bullet pulse"></span>
+        <h2 id="radar-title">MINKOWSKI THREAT TRACE // SECTOR Δ</h2>
+        <span class="panel-id" id="radar-subtitle">PNL-002 / LIGHT-CONE PROJECTION</span>
+        <div class="panel-toggle">
+          <button class="toggle-btn active" id="btn-radar" onclick="setRadarView('radar')">THREAT TRACE</button>
+          <button class="toggle-btn" id="btn-install" onclick="setRadarView('install')">INSTALLATION</button>
+        </div>
+      </header>
+      <div class="panel-body radar-body">
+
+        <!-- Radar sweep view -->
+        <div id="radar-canvas-wrap">
+          <canvas id="radar-canvas"></canvas>
+          <div class="radar-readout">
+            <div><span class="k">CONTACTS:</span><span class="v" id="contact-count">0</span></div>
+            <div><span class="k">FUTURE LIGHT CONE:</span><span class="v ok">NOMINAL</span></div>
+            <div><span class="k">PAST LIGHT CONE:</span><span class="v ok">CAUSAL</span></div>
+            <div><span class="k">SWEEP MODE:</span><span class="v">WORLDLINE / τ</span></div>
+          </div>
+        </div>
+
+        <!-- Installation / railgun view -->
+        <div class="railgun-view" id="railgun-view">
+          <canvas id="railgun-canvas"></canvas>
+          <div class="railgun-section-labels" id="rg-labels">
+            <div class="rg-label" data-section="rail"    style="left:38%;top:14%">PRIMARY RAIL ASSEMBLY</div>
+            <div class="rg-label" data-section="coils"   style="left:22%;top:55%">EM ACCELERATOR COILS ×24</div>
+            <div class="rg-label" data-section="sensor"  style="left:63%;top:22%">TARGETING SENSOR ARRAY</div>
+            <div class="rg-label" data-section="caps"    style="left:60%;top:65%">CAPACITOR BANK CLUSTER</div>
+            <div class="rg-label" data-section="tanks"   style="left:6%; top:72%">REACTION MASS TANKS</div>
+            <div class="rg-label" data-section="command" style="left:5%; top:20%">FIRE CONTROL MODULE</div>
+          </div>
+          <div class="railgun-section-info" id="rg-info">
+            <span class="si-name">SELECT A SECTION</span>
+            <span class="si-stats">Click any labeled subsystem to view diagnostic readout.</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PHYSICS PACKAGE LOADOUT -->
+    <section class="panel" id="panel-loadout">
+      <header class="panel-header">
+        <span class="bullet"></span>
+        <h2>PHYSICS PACKAGE LOADOUT</h2>
+        <span class="panel-id">PNL-003 / ORDNANCE</span>
+      </header>
+      <div class="panel-body">
+        <div class="weapon" data-weapon="kn">
+          <div class="weapon-row">
+            <span class="weapon-name">KERR–NEWMAN WARHEAD ×4</span>
+            <span class="weapon-state ready">READY</span>
+          </div>
+          <div class="weapon-meta">a = 0.998 M ⋅ Q = 0.043 M</div>
+          <div class="bar"><div class="bar-fill" style="width:96%"></div></div>
+        </div>
+        <div class="weapon" data-weapon="vac">
+          <div class="weapon-row">
+            <span class="weapon-name">FALSE-VACUUM SEED Ψ-7</span>
+            <span class="weapon-state lockout">LOCKOUT</span>
+          </div>
+          <div class="weapon-meta">METASTABILITY Δφ = 1.21 × 10¹⁹ GeV</div>
+          <div class="bar"><div class="bar-fill warn" style="width:18%"></div></div>
+        </div>
+        <div class="weapon" data-weapon="exotic">
+          <div class="weapon-row">
+            <span class="weapon-name">EXOTIC-MATTER LANCE (ρ &lt; 0)</span>
+            <span class="weapon-state ready">READY</span>
+          </div>
+          <div class="weapon-meta">CASIMIR FLUX 4.7 × 10⁻⁹ N·m⁻²</div>
+          <div class="bar"><div class="bar-fill" style="width:78%"></div></div>
+        </div>
+        <div class="weapon" data-weapon="grb">
+          <div class="weapon-row">
+            <span class="weapon-name">COLLIMATED GRB EMITTER</span>
+            <span class="weapon-state charging">CHARGING</span>
+          </div>
+          <div class="weapon-meta">E<sub>iso</sub> ≈ 10⁵² erg ⋅ θ<sub>j</sub> = 0.04 rad</div>
+          <div class="bar"><div class="bar-fill charging-bar" id="grb-bar" style="width:34%"></div></div>
+        </div>
+        <div class="weapon" data-weapon="rkv">
+          <div class="weapon-row">
+            <span class="weapon-name">RELATIVISTIC KINETIC SLUG ×12</span>
+            <span class="weapon-state ready">READY</span>
+          </div>
+          <div class="weapon-meta">γ = 4.2 ⋅ M<sub>0</sub> = 1.4 t</div>
+          <div class="bar"><div class="bar-fill" style="width:100%"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SPACETIME DIAGNOSTICS -->
+    <section class="panel" id="panel-spacetime">
+      <header class="panel-header">
+        <span class="bullet"></span>
+        <h2>LOCAL SPACETIME DIAGNOSTICS</h2>
+        <span class="panel-id">PNL-004 / METRIC TENSOR</span>
+      </header>
+      <div class="panel-body">
+        <div class="metric">
+          <div class="metric-label">METRIC SIGNATURE</div>
+          <div class="metric-value mono">(−,+,+,+) // LORENTZIAN</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">RICCI SCALAR R</div>
+          <div class="metric-value mono" id="ricci">+8.412e-26 m⁻²</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">KRETSCHMANN K</div>
+          <div class="metric-value mono" id="kretsch">1.137e-44 m⁻⁴</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">STRESS–ENERGY T<sub>μν</sub></div>
+          <div class="metric-value mono">DOMINANT ENERGY: <span class="ok">SATISFIED</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">ADM MASS</div>
+          <div class="metric-value mono" id="adm">2.847e+04 kg</div>
+        </div>
+        <div class="metric tensor-block">
+          <div class="metric-label">g<sub>μν</sub> (NORMALIZED)</div>
+          <pre class="tensor mono" id="tensor">
+ -0.99988   +0.00004   -0.00001   +0.00000
+ +0.00004   +1.00012   +0.00002   -0.00001
+ -0.00001   +0.00002   +1.00009   +0.00003
+ +0.00000   -0.00001   +0.00003   +1.00007</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAUSALITY / CHRONOLOGY MONITOR -->
+    <section class="panel" id="panel-causality">
+      <header class="panel-header">
+        <span class="bullet pulse"></span>
+        <h2>CHRONOLOGY PROTECTION MONITOR</h2>
+        <span class="panel-id">PNL-005 / HAWKING CONJECTURE</span>
+      </header>
+      <div class="panel-body">
+        <div class="chrono-grid">
+          <div class="chrono-cell">
+            <div class="chrono-label">CTC DETECTION</div>
+            <div class="chrono-state ok" id="ctc-state">NEGATIVE</div>
+            <div class="chrono-sub">δτ ∮ &lt; 10⁻⁴² s</div>
+          </div>
+          <div class="chrono-cell">
+            <div class="chrono-label">LIGHT CONE TILT</div>
+            <div class="chrono-state ok" id="cone-state">0.00027 rad</div>
+            <div class="chrono-sub">WITHIN TOLERANCE</div>
+          </div>
+          <div class="chrono-cell">
+            <div class="chrono-label">CAUCHY HORIZON</div>
+            <div class="chrono-state ok">STABLE</div>
+            <div class="chrono-sub">d = 4.21 × 10⁸ m</div>
+          </div>
+          <div class="chrono-cell">
+            <div class="chrono-label">ERGOSPHERE BREACH</div>
+            <div class="chrono-state ok">CLEAR</div>
+            <div class="chrono-sub">r &gt; r<sub>+</sub></div>
+          </div>
+          <div class="chrono-cell">
+            <div class="chrono-label">TACHYONIC FLUX</div>
+            <div class="chrono-state warn" id="tachyon">2.4 σ ABOVE BG</div>
+            <div class="chrono-sub">m² &lt; 0 SIGNATURE</div>
+          </div>
+          <div class="chrono-cell">
+            <div class="chrono-label">QUANTUM DECOHERENCE</div>
+            <div class="chrono-state ok" id="decohere">τ<sub>D</sub> = 10⁻¹³ s</div>
+            <div class="chrono-sub">ENVIRONMENT COUPLED</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TARGETING SOLUTION -->
+    <section class="panel wide" id="panel-target">
+      <header class="panel-header">
+        <span class="bullet pulse"></span>
+        <h2>GEODESIC TARGETING SOLUTION</h2>
+        <span class="panel-id">PNL-006 / SCHWARZSCHILD-CORRECTED</span>
+      </header>
+      <div class="panel-body target-body">
+        <div class="target-vis">
+          <canvas id="target-canvas"></canvas>
+          <div class="reticle"></div>
+          <div class="target-labels">
+            <div class="tlabel tl-tl">TGT // ASSET-X9</div>
+            <div class="tlabel tl-tr">LOCK 98.7%</div>
+            <div class="tlabel tl-bl">RANGE 1,402 km</div>
+            <div class="tlabel tl-br">TTI 00:01:47</div>
+          </div>
+        </div>
+        <div class="target-data">
+          <div class="td-row"><span>DESIGNATION</span><span class="mono">ASSET-X9 / "AEGIS-PRIME"</span></div>
+          <div class="td-row"><span>ECEF (X, Y, Z)</span><span class="mono" id="ecef">+4218.412, −3914.083, +3221.770 km</span></div>
+          <div class="td-row"><span>GEODESIC TYPE</span><span class="mono">TIMELIKE / BOUND</span></div>
+          <div class="td-row"><span>IMPACT PARAMETER b</span><span class="mono">3.41 r<sub>s</sub></span></div>
+          <div class="td-row"><span>SHAPIRO DELAY Δt<sub>s</sub></span><span class="mono" id="shapiro">+412 µs</span></div>
+          <div class="td-row"><span>LIGHT-TIME LAG</span><span class="mono" id="ltlag">0.00468 s</span></div>
+          <div class="td-row"><span>FIRING SOLUTION</span><span class="mono ok">CONVERGED</span></div>
+          <div class="td-row"><span>P<sub>K</sub> (KILL PROB.)</span><span class="mono ok">0.974</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- POWER / REACTOR -->
+    <section class="panel" id="panel-power">
+      <header class="panel-header">
+        <span class="bullet"></span>
+        <h2>REACTOR // PHASE-SPACE</h2>
+        <span class="panel-id">PNL-007 / D-³He FUSOR + ZPE TAP</span>
+      </header>
+      <div class="panel-body">
+        <div class="power-grid">
+          <div class="power-cell">
+            <div class="pc-label">CORE FLUX</div>
+            <div class="pc-value mono" id="core-flux">2.847 GW</div>
+            <div class="bar"><div class="bar-fill" id="core-bar" style="width:84%"></div></div>
+          </div>
+          <div class="power-cell">
+            <div class="pc-label">CAPACITOR BANK</div>
+            <div class="pc-value mono" id="cap-bank">94.2%</div>
+            <div class="bar"><div class="bar-fill" id="cap-bar" style="width:94%"></div></div>
+          </div>
+          <div class="power-cell">
+            <div class="pc-label">ZERO-POINT TAP</div>
+            <div class="pc-value mono" id="zpe">3.7 × 10⁻⁹ J·m⁻³</div>
+            <div class="bar"><div class="bar-fill" id="zpe-bar" style="width:42%"></div></div>
+          </div>
+          <div class="power-cell">
+            <div class="pc-label">RADIATOR ΔT</div>
+            <div class="pc-value mono" id="radiator">+2,140 K</div>
+            <div class="bar"><div class="bar-fill warn" style="width:71%"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOTTOM ROW: EVENT LOG + LAUNCH CONTROL -->
+    <div class="bottom-row">
+
+      <!-- EVENT LOG -->
+      <section class="panel" id="panel-log">
+        <header class="panel-header">
+          <span class="bullet pulse"></span>
+          <h2>EVENT LOG // T-STREAM</h2>
+          <span class="panel-id">PNL-008 / RING BUFFER</span>
+        </header>
+        <div class="panel-body log-body">
+          <ul id="log-list"></ul>
+        </div>
+      </section>
+
+      <!-- LAUNCH CONTROL -->
+      <section class="panel" id="panel-launch">
+        <header class="panel-header">
+          <span class="bullet pulse"></span>
+          <h2>PHYSICS PACKAGE LAUNCH CONTROL</h2>
+          <span class="panel-id">PNL-009 / AUTHORIZATION REQUIRED</span>
+        </header>
+        <div class="panel-body launch-body">
+
+          <div class="launch-left">
+            <div class="launch-label">SELECT ORDNANCE</div>
+            <ul class="weapon-select" id="weapon-select">
+              <li class="ws-item active" data-pkg="kn">
+                <span class="ws-dot"></span>
+                <span class="ws-name">KERR–NEWMAN WARHEAD</span>
+                <span class="ws-state ready">RDY</span>
+              </li>
+              <li class="ws-item" data-pkg="exotic">
+                <span class="ws-dot"></span>
+                <span class="ws-name">EXOTIC-MATTER LANCE</span>
+                <span class="ws-state ready">RDY</span>
+              </li>
+              <li class="ws-item" data-pkg="grb">
+                <span class="ws-dot"></span>
+                <span class="ws-name">COLLIMATED GRB EMITTER</span>
+                <span class="ws-state charging">CHG</span>
+              </li>
+              <li class="ws-item" data-pkg="rkv">
+                <span class="ws-dot"></span>
+                <span class="ws-name">RELATIVISTIC KINETIC SLUG</span>
+                <span class="ws-state ready">RDY</span>
+              </li>
+              <li class="ws-item disabled" data-pkg="vac">
+                <span class="ws-dot"></span>
+                <span class="ws-name">FALSE-VACUUM SEED Ψ-7</span>
+                <span class="ws-state lockout">LCK</span>
+              </li>
+            </ul>
+            <div class="auth-row">
+              <span class="auth-label">AUTH KEY A</span>
+              <span class="auth-pip active"></span>
+              <span class="auth-label">AUTH KEY B</span>
+              <span class="auth-pip active"></span>
+              <span class="auth-label">AUTH KEY C</span>
+              <span class="auth-pip" id="auth-c"></span>
+            </div>
+          </div>
+
+          <div class="launch-right">
+            <div class="launch-pkg-name" id="launch-pkg-name">KERR–NEWMAN WARHEAD</div>
+            <div class="launch-status" id="launch-status">SYSTEM READY // AWAITING ARM</div>
+            <div class="launch-btn-row">
+              <button class="arm-btn" id="arm-btn" onclick="launchArm()">ARM</button>
+              <button class="disarm-btn" id="disarm-btn" onclick="launchArm()" style="display:none">DISARM</button>
+              <button class="launch-btn" id="launch-btn" onclick="launchFire()" style="display:none">
+                <span class="launch-btn-inner">
+                  <span class="launch-btn-label" id="launch-btn-label">INITIATE LAUNCH SEQUENCE</span>
+                </span>
+              </button>
+            </div>
+            <div class="launch-countdown" id="launch-countdown"></div>
+          </div>
+
+        </div>
+      </section>
+
+    </div><!-- /.bottom-row -->
+
+  </main>
+
+  <footer class="hud-footer">
+    <span>OPV-9 / FCS v6.2.41 / GR-CORRECTED FIRE-CONTROL</span>
+    <span class="sep">│</span>
+    <span>UPLINK: <em class="ok" id="uplink">SECURE 256-QKD</em></span>
+    <span class="sep">│</span>
+    <span>OPERATOR: <em>CMDR. R. VOSS // CLR-Ω</em></span>
+    <span class="sep">│</span>
+    <span id="utc">UTC 0000-00-00 00:00:00.000</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
