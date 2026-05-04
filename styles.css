@@ -1084,6 +1084,13 @@ body {
 }
 .hud-footer em { color: var(--c-rose); font-style: normal; text-shadow: var(--glow-soft); }
 .hud-footer .ok { color: var(--c-rose); }
+.footer-motto {
+  margin-left: auto;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--c-pink);
+  text-shadow: 0 0 10px rgba(100,180,255,0.4);
+}
 
 /* ---------- animations ---------- */
 @keyframes pulse {
